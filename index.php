@@ -1,3 +1,4 @@
+<?php require("config.php") ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
 <!--  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - >
 <  index.html: VLC media player web interface - VLM
@@ -212,10 +213,10 @@
 						<li id="buttonSout" class="button48  ui-corner-all" title="Easy Stream"></li>
 					</ul>
 					<ul id="buttonszone2" class="buttonszone">
-						<li id="buttonPlayList" class="button ui-widget ui-state-default ui-corner-all" title="Hide / Show Library"><span class="ui-icon ui-icon-note"></span>Hide / Show Library</li>
-						<li id="buttonViewer" class="button ui-widget ui-state-default ui-corner-all" title="Hide / Show Viewer"><span class="ui-icon ui-icon-video"></span>Hide / Show Viewer</li>
-						<li id="buttonStreams" class="button ui-widget ui-state-default ui-corner-all" title="Manage Streams"><span class="ui-icon ui-icon-script"></span>Manage Streams</li>
-						<li id="buttonOffsets" class="button ui-widget ui-state-default ui-corner-all" title="Track Synchronisation"><span class="ui-icon ui-icon-transfer-e-w"></span>Track Synchronisation</li>
+						<li id="buttonPlayList" class="button ui-widget ui-state-default ui-corner-all" title="Hide / Show Library"><span class="ui-icon ui-icon-note"></span>Knihovna</li>
+						<li id="buttonViewer" class="button ui-widget ui-state-default ui-corner-all" title="Hide / Show Viewer"><span class="ui-icon ui-icon-video"></span>Náhled videa</li>
+						<li id="buttonStreams" class="button ui-widget ui-state-default ui-corner-all" title="Manage Streams"><span class="ui-icon ui-icon-script"></span>Správa proudů</li>
+						<li id="buttonOffsets" class="button ui-widget ui-state-default ui-corner-all" title="Track Synchronisation"><span class="ui-icon ui-icon-transfer-e-w"></span>Synchronizace stop</li>
 						<li id="buttonEqualizer" class="button ui-widget ui-state-default ui-corner-all" title="Ekvalizér"><span class="ui-icon ui-icon-signal"></span>Ekvalizér</li>
 						<li id="buttonBatch" class="button ui-widget ui-state-default ui-corner-all" title="VLM Batch Commands"><span class="ui-icon ui-icon-suitcase"></span>VLM Batch Commands</li>
 					</ul>
@@ -224,7 +225,7 @@
 						<div id="currentVolume" class="dynamic">50%</div>
 					</div>
 					<div id="artszone">
-						<img id="albumArt" src="/art" width="141px" height="130px" alt="Album Art"/>
+						<img id="albumArt" src="/art" width="141px" height="130px" alt=""/>
 					</div>
 					<div id="mediaTitle" class="dynamic"></div>
 					<div id="seekContainer">
@@ -239,8 +240,8 @@
 					<li id="buttonShuffle" class="button ui-widget ui-state-default ui-corner-all" title="Zamíchat"><span class="ui-icon ui-icon-shuffle"></span>Zamíchat</li>
 					<li id="buttonLoop" class="button ui-widget ui-state-default ui-corner-all" title="Smyčka"><span class="ui-icon ui-icon-refresh"></span>Smyčka</li>
 					<li id="buttonRepeat" class="button ui-widget ui-state-default ui-corner-all" title="Opakovat"><span class="ui-icon ui-icon-arrowreturnthick-1-w"></span>Opakovat</li>
-					<li id="buttonPlEmpty" class="button ui-widget ui-state-default ui-corner-all" title="Prázdný seznam skladeb"><span class="ui-icon ui-icon-trash"></span>Prázdný seznam skladeb</li>
-					<li id="buttonPlAdd" class="button ui-widget ui-state-default ui-corner-all" title="Queue Selected"><span class="ui-icon ui-icon-plus"></span>Queue Selected</li>
+					<li id="buttonPlEmpty" class="button ui-widget ui-state-default ui-corner-all" title="Vyprázdnit seznam"><span class="ui-icon ui-icon-trash"></span>Vyprázdnit seznam</li>
+					<li id="buttonPlAdd" class="button ui-widget ui-state-default ui-corner-all" title="Vybrané do fronty"><span class="ui-icon ui-icon-plus"></span>Vybrané do fronty</li>
 					<li id="buttonPlPlay" class="button ui-widget ui-state-default ui-corner-all" title="Přehrát vybrané"><span class="ui-icon ui-icon-play"></span>Přehrát vybrané</li>
 					<li id="buttonRefresh" class="button ui-widget ui-state-default ui-corner-all" title="Obnovit seznam"><span class="ui-icon ui-icon-arrowrefresh-1-n"></span>Obnovit seznam</li>
 				</ul>
@@ -248,8 +249,8 @@
 			</div>
 			<div id="viewContainer" class="ui-widget">
 				<div id="mediaViewer" class="ui-widget-content">
-					<div href="http://localhost:8081/stream.flv" style="display:block; width:100%" id="player">
-						<p>Loading flowplayer...<br/>Pokud se nic nezobrazí, zkontrolujte Vaše připojení k internetu.</p>
+					<div href="<?php echo $CONFIG["vlc-stream"] ?>" style="display:block; width:100%" id="player">
+						<p>(Přehrávač nenačten.)</p>
 					</div>
 				</div>
 			</div>
@@ -272,7 +273,7 @@
 		</div>
 		<script type="text/javascript">
 //<![CDATA[
-	var browse_target		=	'default';
+	var browse_target = 'default';
 	$(function(){
 		$('#window_browse').dialog({
 			autoOpen: false,
@@ -281,12 +282,12 @@
 			modal: true,
 			resizable: false,
 			buttons: {
-				"Otevřít":function(){
+				"Přehrát":function(){
 					$('li.ui-selected','#browse_elements').each(function(){
 						$(this).dblclick();
 					});
 				},
-				"Enqueue": function() {
+				"Do fronty": function() {
 					$('li.ui-selected','#browse_elements').each(function(){
 						var path	=	this.getAttribute('opendir') ? this.getAttribute('opendir') : this.getAttribute('openfile');
 						switch(browse_target){
@@ -420,15 +421,15 @@
 			$('#output_options').empty();
 			switch($(this).val()){
 				case 'file':
-					var options	=	$('#file_options').clone();
+					var options = $('#file_options').clone();
 					break;
 				case 'http':
-					var options	=	$('#net_options').clone();
+					var options = $('#net_options').clone();
 					break;
 				case 'mmsh':
 				case 'rtp':
 				case 'udp':
-					var options	=	$('#net_options').clone();
+					var options = $('#net_options').clone();
 					$('#stream_out_file_',options).val('');
 					break;
 			}
@@ -872,7 +873,7 @@
 	});
 //]]>
 </script>
-<div id="window_offset" title="Track Synchronisation">
+<div id="window_offset" title="Synchronizace stop">
 	<div>Rychlost přehrávání</div>
 	<div id="rateSlider" title="Rychlost přehrávání"></div>
 	<div id="currentRate" class="dynamic">1x</div>
