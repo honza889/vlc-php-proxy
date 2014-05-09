@@ -1,0 +1,6 @@
+RewriteEngine on
+
+# Presmerovat pozadavky na VLC pres proxy.php na port 8080
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(.*)$ proxy.php/$1 [QSA,L]
